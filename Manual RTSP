@@ -1,0 +1,138 @@
+La guia se encuentra en : https://gist.github.com/neilyoung/8216c6cf0c7b69e25a152fde1c022a5d
+
+Prerrequisitos
+Raspberry PI Zero W, 2, 3, 3b, 3b +, 4 con una Raspberry PI-Cam 5 MP o una SainSmart Wide Angle Fish-Eye Cam (recomendado).
+
+Las cámaras USB no son abordadas por esta esencia, aunque es posible. La configuración de U4VL es ligeramente diferente. No recomendamos el uso de cámaras USB con Raspberry PI por razones de latencia.
+
+Raspbian Stretch Lite o
+
+Raspbian Buster / Buster Lite
+
+Imagen de Ubiquity Robotics Raspberry PI . Esta esencia se refiere a la imagen 2019-06-19 disponible aquí . Básicamente es un derivado de Ubuntu 16.04 Mate.
+
+Una versión reciente de GStreameren su Mac o PC con Linux (1.14 suficiente, 1.16 recomendado). Consulte la documentación de GStreamer, cómo instalarlo.
+
+Tenga en cuenta: aunque técnicamente es posible utilizar cualquiera de los dispositivos Raspberry PI, recomendamos utilizar al menos una Raspberry PI 3B +, ya que tiene suficiente potencia de cálculo y le permite utilizar Wifi de 5 GHz, que en su mayoría no está tan lleno.
+
+Antes del primer arranque y después de haber flasheado la tarjeta SD con la imagen (por ejemplo, usando Etcher):
+
+Habilite SSH sin cabeza colocando un ssharchivo vacío en la partición /bootde arranque de la SD
+Habilite Wifi sin cabeza colocando un wpa_supplicant.confen la partición de arranque de la partición /bootde arranque de la SD. Se prefiere Wifi de 5 GHz, si es posible.
+
+codigo:
+country = <your-two-letter-code>
+ ctrl_interface = DIR = / var / run / wpa_supplicant GROUP = netdev
+ update_config = 1
+ network = {
+        ssid = " <your-ssid> "
+        psk = " <your-password> "
+        key_mgmt = PSK WPA
+}
+
+Sobre problemas con Wifi: https://www.raspberrypi.org/forums/viewtopic.php?t=191061
+
+Encuentra la IP del PI
+SSH a eso
+
+
+Instalaciones
+Después de haber averiguado la IP de la IP en su red SSH al PI:
+
+ssh pi @ < ip-de-pi >
+La contraseña inicial es raspberry.
+
+Actualizar y actualizar
+sudo apt-get update 
+sudo apt-get upgrade
+Configure el PI una vez que esté a nivel de consola
+sudo raspi-config
+Cambiar la contraseña de usuario. Esta es a partir de ese momento su contraseña SSH. Muy recomendable .
+Opciones de interfaz / Habilitar cámara
+Reinicie el PI
+sudo reiniciar
+SSH al PI
+ssh pi @ < ip-de-pi >
+Use su contraseña cambiada ahora.
+
+sudo apt-get update 
+sudo apt-get upgrade 
+sudo apt-get install gstreamer1.0-tools 
+sudo apt-get install gstreamer1.0-plugins-good 
+sudo apt-get install gstreamer1.0-plugins-bad 
+sudo apt-get install gstreamer1 .0-plugins-feo 
+sudo apt-get install gstreamer1.0-libav
+Pruebe su instalación. Para hacer esto, ejecute este comando en su Pi:
+
+raspivid -t 0 -w 640 -h 480 -fps 48 -b 2000000 -awb tungsteno -o - | gst-launch-1.0 -v fdsrc ! h264parse ! rtph264pay config-interval = 1 pt = 96 ! gdppay ! tcpserversink host = 0.0.0.0 puerto = 5000
+Si lo ha instalado a GStreamertravés del paquete de instalación del archivo DMG, ejecute este comando en una terminal de su Mac:
+
+/Library/Frameworks/GStreamer.framework/Commands/gst-launch-1.0 -v tcpclientsrc host = < your_Pi ' s_IP> port = 5000! gdpdepay! rtph264depay! avdec_h264! videoconvert! osxvideosink sync = false
+Ejecute este comando en una terminal de su PC con Linux. El mismo comando funciona en su Mac, si ha instalado GStreamer a través de brew:
+
+gst-launch-1.0 -v tcpclientsrc host = < your_Pi ' s_IP> port = 5000! gdpdepay! rtph264depay! avdec_h264! videoconvert! sincronización de enlace automático = falso
+Deberías ver un video. Esto ya es H.264, pero no RTSP.
+
+Entonces vamos a habilitar esto ahora. Termine el raspividservidor en su PI escribiendo CTRL-C.
+
+sudo apt-get install libglib2.0-dev 
+sudo apt-get install libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
+Descárguelo gst-rtsp-serverde https://gstreamer.freedesktop.org/src/ . Debe coincidir con la versión de gstreamer instalada. Esto puede comprobarse con
+
+dpkg -l | grep gstreamer
+En el momento de escribir este artículo, esto es 1.14.4para Buster lite. Edite los siguientes comandos para otras versiones (es decir, reemplace todas las apariciones de 1.14.4con el código de la versión que está utilizando).
+
+wget https://gstreamer.freedesktop.org/src/gst-rtsp-server/gst-rtsp-server-1.14.4.tar.xz 
+tar -xf gst-rtsp-server-1.14.4.tar.xz cd gst -rtsp-server-1.14.4 
+./configure 
+make 
+sudo make install
+Prueba tu configuración:
+
+ejemplos de cd 
+./test-launch --gst-debug = 3 ' (videotestsrc! x264enc! rtph264pay name = pay0 pt = 96) '
+Si lo ha instalado a GStreamertravés del paquete de instalación del archivo DMG, ejecute este comando en una terminal de su Mac:
+
+/Library/Frameworks/GStreamer.framework/Commands/gst-launch-1.0 -v rtspsrc location = rtsp: // < your_Pi ' s_IP: 8554 / test latency = 0 buffer-mode = auto! decodebin! videoconvert! osxvideosink sync = false
+Ejecute este comando en una terminal de su PC con Linux. El mismo comando funciona en su Mac, si ha instalado GStreamer a través de brew:
+
+gst-launch-1.0 -v rtspsrc location = rtsp: // < your_Pi ' s_IP>: 8554 / test latency = 0 buffer-mode = auto! decodebin! videoconvert! sincronización de enlace automático = falso
+Debería ver un video de prueba.
+
+Termine el servidor RTSP en el PI con CTRL-C.
+
+Ahora queremos ver la cámara. Para ello usamos la bonita raspividenvoltura gst-rpicamsrc.
+
+cd  ~ 
+sudo apt-get install git 
+git clone https://github.com/thaytan/gst-rpicamsrc.git
+Para el sistema operativo Raspbian
+Proceder con
+
+cd gst-rpicamsrc 
+./autogen.sh 
+make 
+sudo make install
+
+
+Finalmente
+
+Compruebe, si gst-rpicamsrc está instalado
+
+gst-inspect-1.0 | grep rpicamsrc
+Ahora para la prueba final:
+
+cd ../gst-rtsp-server-1.14.4/examples 
+./test-launch --gst-debug = 3 " (rpicamsrc bitrate = 8000000 awb-mode = tungsten preview = false! video / x-h264, width = 640, altura = 480, velocidad de fotogramas = 30/1! H264parse! Rtph264pay name = pay0 pt = 96) "
+Si se ejecuta, elimínelo --gst-debug=3y déjelo funcionar como un demonio agregando &a la línea de comando anterior.
+
+Si lo ha instalado a GStreamertravés del paquete de instalación del archivo DMG, ejecute este comando en una terminal de su Mac:
+
+/Library/Frameworks/GStreamer.framework/Commands/gst-launch-1.0 -v rtspsrc location = rtsp: // < your_Pi ' s_IP>: 8554 / test latency = 0 buffer-mode = auto! decodebin! videoconvert! osxvideosink sync = false
+Ejecute este comando en una terminal de su PC con Linux. El mismo comando funciona en su Mac, si ha instalado GStreamer a través de brew:
+
+gst-launch-1.0 -v rtspsrc location = rtsp: // < your_Pi ' s_IP>: 8554 / test latency = 0 buffer-mode = auto! decodebin! videoconvert! sincronización de enlace automático = falso
+Para obtener más información gst-rpicamsrcy posibles otros parámetros como ya se utilizó anteriormente:
+
+https://sparkyflight.wordpress.com/tag/gst-rpicamsrc/
+
