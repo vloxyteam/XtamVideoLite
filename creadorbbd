@@ -1,0 +1,22 @@
+import mysql.connector
+
+mydb = mysql.connector.connect(
+  host="localhost",
+  user="xtam",
+  password="Xtam2020",
+#  database="xtam"
+)
+mycursor = mydb.cursor()
+
+mycursor.execute("CREATE DATABASE pruebas")
+
+mycursor.execute("USE pruebas")
+
+
+for x in mycursor:
+  print(x)
+mycursor.execute("CREATE TABLE videos_camaras (id BIGINT(255) unsigned NOT NULL AUTO_INCREMENT , filename VARCHAR(255) DEFAULT NULL, type VARCHAR(255) DEFAULT NULL, size VARCHAR(255)DEFAULT NULL, datestart DATE DEFAULT NULL, timestart DATE DEFAULT NULL, datefinish TIME DEFAULT NULL, timefinish TIME DEFAULT NULL, idCamara BIGINT(10) DEFAULT NULL, datatimestart DATETIME DEFAULT NULL, datetimefinish DATETIME DEFAULT NULL, PRIMARY KEY('id')) ENGINE = InnoDB AUTO_INCREMENT=73 DEFAULT CHARTSET=utf8; )")
+mycursor.execute("SHOW TABLES")
+
+print(mycursor.rowcount, "Ingresado.")
+
