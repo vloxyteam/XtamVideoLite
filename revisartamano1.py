@@ -4,13 +4,13 @@
 import os 
 
 # Path 
-path = '/home/xtam/camaras/camara1/'
+path = './'
 
 # Get the size (in bytes) 
 # of specified path 
-size = os.path.getsize(path) 
+size1 = os.path.getsize(path) 
 
 
 # Print the size (in bytes) 
 # of specified path 
-print("Size (In bytes) of '%s':" %path, size) 
+print("El tamaño en (bytes) of '%s':" %path, size1) 
