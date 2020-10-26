@@ -1,22 +1,38 @@
 import mysql.connector
+import sqlite3
+import csv
+import sys
+from datetime import datetime
+import pymysql
+import os
+import mariadb
+import glob
 
-mydb = mysql.connector.connect(
-  host="localhost",
+timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+def result():
+    resultado = [y for x in os.walk("/home/xtam/camaras/") for y in glob(os.path.join (x[0], '*.ts'))]
+    print ("Resultado : %s" % resultado)
+
+a = result
+
+conn = mariadb.connect(
   user="xtam",
   password="Xtam2020",
-#  database="xtam"
+  host="localhost",
+  database="xtam"
 )
-mycursor = mydb.cursor()
 
-mycursor.execute("CREATE DATABASE pruebas")
+cur = conn.cursor()
+cur.execute("SHOW DATABASES")
+cur.execute("CREATE TABLE recordings (id BIGINT (255) UNSIGNED NOT NULL AUTO_INCREMENT, filename VARCHAR(50) DEFAULT NULL, type VARCHAR(20) DEFAULT NULL, size BIGINT(20) DEFAULT NULL, datestart DATE DEFAULT NULL, timestart TIME DEFAULT NULL, datefinish DATE DEFAULT NULL, timefinish TIME DEFAULT NULL, idCamara BIGINT(10), datetimestart DATETIME DEFAULT NULL, datetimefinish DATETIME DEFAULT NULL, PRIMARY KEY (id)) ENGINE = INNODB AUTO_INCREMENT=73 DEFAULT CHARSET=utf8")
+try:
+    cur.execute("INSERT INTO recordings (id, filename, type, size, datestart, timestart, datefinish, timefinish, idCamara, datetimestart, datetimefinish) VALUES ( 0, 0, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (0, 0, 0, 0, 0, 0, 0, 0, 0, 0))
 
-mycursor.execute("USE pruebas")
-
-
-for x in mycursor:
-  print(x)
-mycursor.execute("CREATE TABLE videos_camaras (id BIGINT(255) unsigned NOT NULL AUTO_INCREMENT , filename VARCHAR(255) DEFAULT NULL, type VARCHAR(255) DEFAULT NULL, size VARCHAR(255)DEFAULT NULL, datestart DATE DEFAULT NULL, timestart DATE DEFAULT NULL, datefinish TIME DEFAULT NULL, timefinish TIME DEFAULT NULL, idCamara BIGINT(10) DEFAULT NULL, datatimestart DATETIME DEFAULT NULL, datetimefinish DATETIME DEFAULT NULL, PRIMARY KEY('id')) ENGINE = InnoDB AUTO_INCREMENT=73 DEFAULT CHARTSET=utf8; )")
-mycursor.execute("SHOW TABLES")
-
-print(mycursor.rowcount, "Ingresado.")
-
+except mariadb.Error as e:
+    print(f"Error: {e}")
+  
+# Finalizar 
+conn.commit()
+print (f"Último Insertado: {cur.lastrowid}")
+conn.close()
