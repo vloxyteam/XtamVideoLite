@@ -9,7 +9,7 @@ import sys, codecs
 import locale
 import revisartamano1 as tam
 import daystart as ds
-import timestart as ts
+import timestart as tis
 import duracion as dur
 import datefinish as df
 import timefinish as tf
@@ -27,12 +27,13 @@ tam = tam.os.path.getsize(filename)
 #3 comienzo del tiempo - datestart
 ts = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
+df = df.get_duration(filename)
 
 #4 comienzo de tiempo - timestart
 dts = dts.x
 
 #5 Tiempo de inicio del video
-tiv = ts
+tiv = tis
 
 #6 listados de los archivos ts
 dn = lst1.latest_file
@@ -44,7 +45,7 @@ dn = lst1.latest_file
 dt = dur.get_duration(filename)
 
 #7 tiempo final del archivo
-tf = tf.get_duration(filename)
+tf = tf.x
 
 #8 Dia de modificación
 di = os.stat('/').st_mtime
@@ -66,12 +67,12 @@ cur = conn.cursor()
 
 def result():
     resultado = [y for x in os.walk("") for y in glob(os.path.join (x[0], '*.ts'))]
- #   print ("Resultado : %s" % resultado)
+#   print ("Resultado : %s" % resultado)
 
 nom = dir
 
 try:
-    cur.execute("INSERT INTO recordings (id, filename, type, size, datestart, timestart, datefinish, timefinish, idCamara, datetimestart, datetimefinish) VALUES ( NULL, ? , ?, ?, ?, ?, ?, ?, ?, ?, ?)", (filename, '.ts', tam, ts, ts, ts, tf, 1, dts, ts))
+    cur.execute("INSERT INTO recordings (id, filename, type, size, datestart, timestart, datefinish, timefinish, idCamara, datetimestart, datetimefinish) VALUES ( NULL, ? , ?, ?, ?, ?, ?, ?, ?, ?, ?)", (filename, '.ts', tam, ts, ts, dts, df, 1, ts, tf))
 
 except mariadb.Error as e:
     print(f"Error: {e}")
@@ -80,3 +81,6 @@ except mariadb.Error as e:
 conn.commit()
 print (f"Último Insertado desde camara 1: {cur.lastrowid}")
 conn.close()
+
+
+
