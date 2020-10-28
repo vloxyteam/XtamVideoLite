@@ -7,33 +7,39 @@ import glob
 import listarcam4 as lst4
 import sys, codecs
 import locale
-import revisartamano4 as tam
+import revisartamano1 as tam
 import daystart as ds
 import timestart as tis
 import duracion as dur
 import datefinish as df
-import timefinish as tf
+import timefinish as tfs
 import datetimestart as dts
+import datetimefinish as dtf
 
 print (sys.getdefaultencoding())
 
 #1 nombre del archivo - filename
 filename = lst4.latest_file4
 
+tfs = tfs.t
+
 #2 obtener el tamaño del archivo - size
 tam = tam.os.path.getsize(filename) 
-#print('El tamaño es de: ', tam, 'bytes')
+print('El tamaño es de: ', tam, 'bytes')
+
+dtf = dtf.timestamp
+print('tiempo: ', filename, 'final')
 
 #3 comienzo del tiempo - datestart
 ts = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-df = df.get_duration(filename)
+df = df.x
 
 #4 comienzo de tiempo - timestart
 dts = dts.x
 
 #5 Tiempo de inicio del video
-tiv = tis
+tiv = tis.start
 
 #6 listados de los archivos ts
 dn = lst4.latest_file4
@@ -41,11 +47,10 @@ dn = lst4.latest_file4
 #7 Dia Final
 
 
-#8 duracion del archivo
-dt = dur.get_duration(filename)
+
 
 #7 tiempo final del archivo
-tf = tf.x
+#tf = tf.x
 
 #8 Dia de modificación
 di = os.stat('/').st_mtime
@@ -72,7 +77,7 @@ def result():
 nom = dir
 
 try:
-    cur.execute("INSERT INTO recordings (id, filename, type, size, datestart, timestart, datefinish, timefinish, idCamara, datetimestart, datetimefinish) VALUES ( NULL, ? , ?, ?, ?, ?, ?, ?, ?, ?, ?)", (filename, '.ts', tam, ts, ts, dts, df, 4, ts, tf))
+    cur.execute("INSERT INTO recordings (id, filename, type, size, datestart, timestart, datefinish, timefinish, idCamara, datetimestart, datetimefinish) VALUES ( NULL, ? , ?, ?, ?, ?, ?, ?, ?, ?, ?)", (filename, '.ts', tam, ts, tfs, dts, ts, 4, tfs, ts))
 
 except mariadb.Error as e:
     print(f"Error: {e}")
